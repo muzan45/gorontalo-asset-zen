@@ -112,10 +112,10 @@ const Inventory = () => {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button className="btn-primary" size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Item
-          </Button>
+            <Button className="btn-primary" size="sm" onClick={() => window.location.href = '/inventory/add'}>
+              <Plus className="mr-2 h-4 w-4" />
+              Tambah Item
+            </Button>
         </div>
       </div>
 

@@ -6,6 +6,11 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Layout } from "@/components/layout/layout";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
+import ItemForm from "./pages/ItemForm";
+import Locations from "./pages/Locations";
+import Scanner from "./pages/Scanner";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -21,16 +26,18 @@ function AppContent() {
 
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/locations" element={<div className="p-8 text-center text-muted-foreground">Halaman Lokasi & Unit (Coming Soon)</div>} />
-        <Route path="/scanner" element={<div className="p-8 text-center text-muted-foreground">Halaman QR Code Scanner (Coming Soon)</div>} />
-        <Route path="/reports" element={<div className="p-8 text-center text-muted-foreground">Halaman Laporan (Coming Soon)</div>} />
-        <Route path="/settings" element={<div className="p-8 text-center text-muted-foreground">Halaman Pengaturan (Coming Soon)</div>} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/inventory/add" element={<ItemForm />} />
+          <Route path="/inventory/edit/:id" element={<ItemForm />} />
+          <Route path="/locations" element={<Locations />} />
+          <Route path="/scanner" element={<Scanner />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
     </Layout>
   );
 }
