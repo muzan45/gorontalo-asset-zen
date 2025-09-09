@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, MapPin, FileText, Settings, Users, QrCode, Calendar } from "lucide-react";
+import { LayoutDashboard, Package, MapPin, FileText, Settings, Users, Calendar } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -32,11 +32,6 @@ const navigation = [
     title: "Lokasi & Unit",
     url: "/locations",
     icon: MapPin,
-  },
-  {
-    title: "QR Code Scanner",
-    url: "/scanner",
-    icon: QrCode,
   },
   {
     title: "Laporan",

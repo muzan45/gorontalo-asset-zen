@@ -9,7 +9,6 @@ import Inventory from "./pages/Inventory";
 import ItemForm from "./pages/ItemForm";
 import Kegiatan from "./pages/Kegiatan";
 import Locations from "./pages/Locations";
-import Scanner from "./pages/Scanner";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
@@ -35,7 +34,6 @@ function AppContent() {
           <Route path="/inventory/edit/:id" element={<ItemForm />} />
           <Route path="/kegiatan" element={<Kegiatan />} />
           <Route path="/locations" element={<Locations />} />
-          <Route path="/scanner" element={<Scanner />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
