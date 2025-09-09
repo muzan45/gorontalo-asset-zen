@@ -7,11 +7,13 @@ import { Layout } from "@/components/layout/layout";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import ItemForm from "./pages/ItemForm";
+import Kegiatan from "./pages/Kegiatan";
 import Locations from "./pages/Locations";
 import Scanner from "./pages/Scanner";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,7 @@ function AppContent() {
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/add" element={<ItemForm />} />
           <Route path="/inventory/edit/:id" element={<ItemForm />} />
+          <Route path="/kegiatan" element={<Kegiatan />} />
           <Route path="/locations" element={<Locations />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/reports" element={<Reports />} />
@@ -50,6 +53,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/*" element={<AppContent />} />
         </Routes>
       </BrowserRouter>

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, User, Building2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -124,7 +124,16 @@ const Login = () => {
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-border text-center">
+              <p className="text-sm text-muted-foreground mb-4">
+                Belum punya akun?{" "}
+                <Link 
+                  to="/register" 
+                  className="font-medium text-primary hover:underline"
+                >
+                  Daftar di sini
+                </Link>
+              </p>
               <div className="text-xs text-center text-muted-foreground">
                 <p>Sistem Inventaris Sarana dan Prasarana Digital</p>
                 <p className="mt-1">UPT BKN Gorontalo © 2024</p>

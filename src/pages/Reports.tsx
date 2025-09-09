@@ -26,6 +26,20 @@ const Reports = () => {
       format: ["PDF", "Excel"]
     },
     {
+      id: "kegiatan-summary",
+      name: "Ringkasan Kegiatan",
+      description: "Laporan semua kegiatan, ujian, dan pelatihan",
+      icon: Calendar,
+      format: ["PDF", "Excel"]
+    },
+    {
+      id: "kegiatan-inventory",
+      name: "Laporan Inventaris per Kegiatan",
+      description: "Item inventaris yang digunakan dalam setiap kegiatan",
+      icon: Calendar,
+      format: ["PDF", "Excel"]
+    },
+    {
       id: "condition-report",
       name: "Laporan Kondisi",
       description: "Status kondisi semua item (baik/rusak/perbaikan)",
@@ -63,21 +77,21 @@ const Reports = () => {
       trend: "up"
     },
     {
-      title: "Kondisi Baik",
-      value: "1,089",
-      change: "+8%", 
+      title: "Total Kegiatan",
+      value: "43",
+      change: "+7",
       trend: "up"
     },
     {
-      title: "Perlu Perbaikan",
-      value: "127",
-      change: "-5%",
-      trend: "down"
+      title: "Kegiatan Aktif",
+      value: "8",
+      change: "+3",
+      trend: "up"
     },
     {
-      title: "Total Lokasi",
-      value: "34",
-      change: "+2",
+      title: "Kondisi Baik",
+      value: "1,089",
+      change: "+8%", 
       trend: "up"
     }
   ];
@@ -93,6 +107,22 @@ const Reports = () => {
     },
     {
       id: 2,
+      name: "Laporan Kegiatan Ujian CAT - Februari 2024",
+      type: "kegiatan-inventory",
+      generatedAt: "2024-02-15",
+      generatedBy: "Staff IT",
+      size: "1.2 MB"
+    },
+    {
+      id: 3,
+      name: "Ringkasan Kegiatan Q1 2024",
+      type: "kegiatan-summary",
+      generatedAt: "2024-03-01",
+      generatedBy: "Admin BKN",
+      size: "1.8 MB"
+    },
+    {
+      id: 4,
       name: "Laporan Kondisi Item - Q4 2023",
       type: "condition-report", 
       generatedAt: "2023-12-31",
@@ -100,7 +130,7 @@ const Reports = () => {
       size: "1.8 MB"
     },
     {
-      id: 3,
+      id: 5,
       name: "Distribusi per Lokasi - Desember 2023",
       type: "location-report",
       generatedAt: "2023-12-20",
