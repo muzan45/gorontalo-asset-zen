@@ -1,5 +1,6 @@
-import { LayoutDashboard, Package, MapPin, FileText, Settings, Users, Calendar } from "lucide-react";
+import { LayoutDashboard, Package, MapPin, FileText, Settings, Users, Calendar, User, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -9,45 +10,57 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-const navigation = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Data Inventaris",
-    url: "/inventory",
-    icon: Package,
-  },
-  {
-    title: "Kegiatan",
-    url: "/kegiatan",
-    icon: Calendar,
-  },
-  {
-    title: "Lokasi & Unit",
-    url: "/locations",
-    icon: MapPin,
-  },
-  {
-    title: "Laporan",
-    url: "/reports",
-    icon: FileText,
-  },
-  {
-    title: "Pengaturan",
-    url: "/settings",
-    icon: Settings,
-  },
-];
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { user, logout } = useAuth();
   const collapsed = state === "collapsed";
+
+  const navigation = [
+    {
+      title: "Dashboard",
+      url: "/",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Data Inventaris",
+      url: "/inventory",
+      icon: Package,
+    },
+    {
+      title: "Kegiatan",
+      url: "/kegiatan",
+      icon: Calendar,
+    },
+    {
+      title: "Lokasi & Unit",
+      url: "/locations",
+      icon: MapPin,
+    },
+    {
+      title: "Laporan",
+      url: "/reports",
+      icon: FileText,
+    },
+    ...(user?.role === 'admin' ? [{
+      title: "Pengaturan",
+      url: "/settings",
+      icon: Settings,
+    }] : []),
+  ];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -94,20 +107,39 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
-        <div className="mt-auto p-4 border-t border-sidebar-border">
-          {!collapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <Users className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-sidebar-foreground">Admin</p>
-                <p className="text-xs text-sidebar-foreground/60">Administrator</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  >
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                      <User className="size-4" />
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{user?.fullName}</span>
+                      <span className="truncate text-xs capitalize">{user?.role}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}
+                >
+                  <DropdownMenuItem onSelect={handleLogout}>
+                    <LogOut />
+                    Keluar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
       </SidebarContent>
     </Sidebar>
   );

@@ -5,26 +5,27 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, User, Building2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     username: "",
     password: ""
   });
   const navigate = useNavigate();
+  const { login, loading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      // For demo purposes, navigate to dashboard
+    try {
+      await login(credentials.username, credentials.password);
       navigate("/");
-    }, 1500);
+    } catch (error) {
+      // Error is already handled in AuthContext
+      console.error('Login failed:', error);
+    }
   };
 
   return (

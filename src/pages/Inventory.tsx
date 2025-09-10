@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, Filter, Download, QrCode, Edit, Trash2, Eye } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Search, Filter, Download, Edit, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,83 +20,93 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { inventoryAPI } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  // Mock data for inventory items
-  const inventoryItems = [
-    {
-      id: "INV001",
-      name: "Komputer Desktop Dell OptiPlex 7090",
-      category: "Elektronik",
-      condition: "Baik",
-      location: "Ruang IT - Lantai 2",
-      responsible: "Ahmad Rizki",
-      acquisitionDate: "2023-01-15",
-      quantity: 1,
+  // Fetch inventory data
+  const { data: inventoryData, isLoading, error } = useQuery({
+    queryKey: ['inventory', { search: searchTerm }],
+    queryFn: () => inventoryAPI.getAll({ search: searchTerm }),
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => inventoryAPI.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      toast({
+        title: "Berhasil",
+        description: "Item inventaris berhasil dihapus",
+      });
+      setDeleteId(null);
     },
-    {
-      id: "INV002",
-      name: "Meja Kerja Kayu - Executive",
-      category: "Furniture",
-      condition: "Baik",
-      location: "Ruang Kepala - Lantai 3",
-      responsible: "Siti Nurhaliza",
-      acquisitionDate: "2023-02-20",
-      quantity: 1,
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Gagal menghapus item",
+        variant: "destructive",
+      });
     },
-    {
-      id: "INV003",
-      name: "Printer Canon iP2870",
-      category: "Elektronik",
-      condition: "Perbaikan",
-      location: "Ruang Admin - Lantai 1",
-      responsible: "Budi Santoso",
-      acquisitionDate: "2022-11-10",
-      quantity: 1,
-    },
-    {
-      id: "INV004",
-      name: "Kursi Kantor Ergonomis",
-      category: "Furniture",
-      condition: "Baik",
-      location: "Ruang Staff - Lantai 2",
-      responsible: "Maya Sari",
-      acquisitionDate: "2023-03-05",
-      quantity: 8,
-    },
-    {
-      id: "INV005",
-      name: "AC Split 1.5 PK Daikin",
-      category: "Elektronik",
-      condition: "Rusak",
-      location: "Ruang Rapat - Lantai 1",
-      responsible: "Joni Iskandar",
-      acquisitionDate: "2022-06-15",
-      quantity: 2,
-    },
-  ];
+  });
+
+  const inventoryItems = inventoryData?.data?.inventory || [];
 
   const getConditionColor = (condition: string) => {
-    switch (condition.toLowerCase()) {
+    switch (condition?.toLowerCase()) {
       case "baik":
         return "bg-green-100 text-green-800 border-green-200";
-      case "perbaikan":
+      case "rusak ringan":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "rusak":
+      case "rusak berat":
         return "bg-red-100 text-red-800 border-red-200";
+      case "hilang":
+        return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
-  const filteredItems = inventoryItems.filter(item =>
+  const handleDelete = async (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+    }
+  };
+
+  const filteredItems = inventoryItems.filter((item: any) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.location?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.responsible.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -112,7 +123,7 @@ const Inventory = () => {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-            <Button className="btn-primary" size="sm" onClick={() => window.location.href = '/inventory/add'}>
+            <Button className="btn-primary" size="sm" onClick={() => navigate('/inventory/add')}>
               <Plus className="mr-2 h-4 w-4" />
               Tambah Item
             </Button>
@@ -136,10 +147,6 @@ const Inventory = () => {
               <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" />
                 Filter
-              </Button>
-              <Button variant="outline" size="sm">
-                <QrCode className="mr-2 h-4 w-4" />
-                Scan QR
               </Button>
             </div>
           </div>
@@ -204,7 +211,7 @@ const Inventory = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium text-sm">{item.location}</p>
+                          <p className="font-medium text-sm">{item.location?.name || 'Tidak diketahui'}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -221,20 +228,19 @@ const Inventory = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/inventory/${item.id}`)}>
                               <Eye className="mr-2 h-4 w-4" />
                               Lihat Detail
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/inventory/edit/${item.id}`)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Item
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <QrCode className="mr-2 h-4 w-4" />
-                              Generate QR
-                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDelete(item.id)}
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Hapus
                             </DropdownMenuItem>
@@ -249,6 +255,30 @@ const Inventory = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus item inventaris ini? 
+              Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

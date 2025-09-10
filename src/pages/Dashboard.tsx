@@ -1,48 +1,32 @@
-import { Package, MapPin, AlertTriangle, CheckCircle, Clock, QrCode } from "lucide-react";
+import { useState } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { Package, MapPin, AlertTriangle, CheckCircle, Clock, Plus, QrCode } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { inventoryAPI, eventsAPI } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/dashboard-hero.jpg";
 
 const Dashboard = () => {
-  const statsData = [
-    {
-      title: "Total Inventaris",
-      value: "1,247",
-      icon: Package,
-      trend: { value: 12, label: "dari bulan lalu" },
-      color: "blue" as const,
-    },
-    {
-      title: "Kondisi Baik",
-      value: "1,089",
-      icon: CheckCircle,
-      trend: { value: 8, label: "dari bulan lalu" },
-      color: "green" as const,
-    },
-    {
-      title: "Perlu Perbaikan",
-      value: "127",
-      icon: AlertTriangle,
-      trend: { value: -5, label: "dari bulan lalu" },
-      color: "yellow" as const,
-    },
-    {
-      title: "Lokasi Aktif",
-      value: "34",
-      icon: MapPin,
-      trend: { value: 2, label: "lokasi baru" },
-      color: "blue" as const,
-    },
-  ];
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
+  // Fetch dashboard stats
+  const { data: inventoryStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['inventory-stats'],
+    queryFn: () => inventoryAPI.getStats(),
+  });
+
+  // Get recent activities (mock for now)
   const recentActivities = [
     {
       id: 1,
       action: "Menambahkan item baru",
       item: "Komputer Desktop Dell OptiPlex 7090",
-      user: "Admin BKN",
+      user: user?.fullName || "Admin BKN",
       time: "2 jam yang lalu",
       type: "add" as const,
     },
@@ -58,17 +42,40 @@ const Dashboard = () => {
       id: 3,
       action: "Memindahkan lokasi",
       item: "Meja Kerja Kayu - MK001",
-      user: "Admin BKN",
+      user: user?.fullName || "Admin BKN",
       time: "6 jam yang lalu",
       type: "move" as const,
     },
+  ];
+
+  const statsData = [
     {
-      id: 4,
-      action: "Scan QR Code",
-      item: "Kursi Kantor Ergonomis",
-      user: "Staff Umum",
-      time: "1 hari yang lalu",
-      type: "scan" as const,
+      title: "Total Inventaris",
+      value: inventoryStats?.data?.totalItems?.toString() || "0",
+      icon: Package,
+      trend: { value: 12, label: "dari bulan lalu" },
+      color: "blue" as const,
+    },
+    {
+      title: "Kondisi Baik", 
+      value: inventoryStats?.data?.conditionStats?.find((s: any) => s.condition === 'Baik')?.count?.toString() || "0",
+      icon: CheckCircle,
+      trend: { value: 8, label: "dari bulan lalu" },
+      color: "green" as const,
+    },
+    {
+      title: "Perlu Perbaikan",
+      value: inventoryStats?.data?.conditionStats?.find((s: any) => s.condition === 'Rusak Ringan')?.count?.toString() || "0",
+      icon: AlertTriangle,
+      trend: { value: -5, label: "dari bulan lalu" },
+      color: "yellow" as const,
+    },
+    {
+      title: "Lokasi Aktif",
+      value: "34",
+      icon: MapPin,
+      trend: { value: 2, label: "lokasi baru" },
+      color: "blue" as const,
     },
   ];
 
@@ -109,12 +116,12 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="hidden md:flex gap-3">
-            <Button variant="secondary" size="lg" className="bg-white/20 border-white/30 text-white hover:bg-white/30">
-              <QrCode className="mr-2 h-5 w-5" />
-              Scan QR Code
-            </Button>
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-              <Package className="mr-2 h-5 w-5" />
+            <Button 
+              size="lg" 
+              className="bg-white text-primary hover:bg-white/90"
+              onClick={() => navigate('/inventory/add')}
+            >
+              <Plus className="mr-2 h-5 w-5" />
               Tambah Item
             </Button>
           </div>
@@ -176,21 +183,13 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start bg-gradient-primary hover:bg-primary-hover" size="lg">
-              <Package className="mr-3 h-5 w-5" />
-              Tambah Item Baru
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <QrCode className="mr-3 h-5 w-5" />
-              Scan QR Code
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <MapPin className="mr-3 h-5 w-5" />
-              Kelola Lokasi
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="lg">
-              <AlertTriangle className="mr-3 h-5 w-5" />
-              Laporan Kerusakan
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/inventory/add')}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Tambah Item
             </Button>
           </CardContent>
         </Card>
