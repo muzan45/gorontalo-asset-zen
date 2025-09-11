@@ -143,13 +143,34 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
-        <Card className="mt-4 card-glass">
+        {/* Demo Mode Info */}
+        <Card className="mt-4 card-glass border-primary/50 bg-primary/5">
           <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-muted-foreground">
-              <p><strong>Admin:</strong> admin / admin123</p>
-              <p><strong>Staff:</strong> staff / staff123</p>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <p className="text-sm font-medium text-primary">Mode Demo Aktif</p>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Aplikasi berjalan dalam mode demo tanpa backend. Semua data bersifat sementara dan akan hilang saat refresh.
+            </p>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-foreground">Akun Demo:</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="space-y-1">
+                  <p className="font-medium text-primary">Admin</p>
+                  <p className="text-muted-foreground">admin / admin123</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-medium text-primary">Staff</p>
+                  <p className="text-muted-foreground">staff / staff123</p>
+                </div>
+              </div>
+              <div className="mt-2 space-y-1">
+                <div className="space-y-1">
+                  <p className="font-medium text-primary">Supervisor</p>
+                  <p className="text-muted-foreground">supervisor / supervisor123</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

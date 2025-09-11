@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authAPI } from '@/lib/api';
 import { toast } from '@/components/ui/use-toast';
+import { DEMO_MODE, findDemoUser, getDemoUserById } from '@/lib/demo-data';
 
 interface User {
   id: string;
@@ -46,8 +47,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token && storedUser) {
         try {
           setUser(JSON.parse(storedUser));
-          // Verify token with server
-          await authAPI.getMe();
+          
+          // In demo mode, skip server verification
+          if (!DEMO_MODE) {
+            await authAPI.getMe();
+          }
         } catch (error) {
           console.error('Token verification failed:', error);
           localStorage.removeItem('token');
@@ -64,20 +68,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
-      const response = await authAPI.login({ username, password });
       
-      if (response.success) {
-        const { user: userData, token } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
+      if (DEMO_MODE) {
+        // Demo mode login
+        const demoUser = findDemoUser(username, password);
         
-        toast({
-          title: "Login berhasil",
-          description: `Selamat datang, ${userData.fullName}`,
-        });
+        if (demoUser) {
+          const userData = {
+            id: demoUser.id,
+            fullName: demoUser.fullName,
+            username: demoUser.username,
+            email: demoUser.email,
+            role: demoUser.role,
+            phone: demoUser.phone
+          };
+          
+          const demoToken = `demo-token-${demoUser.id}`;
+          localStorage.setItem('token', demoToken);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+          
+          toast({
+            title: "Login berhasil (Mode Demo)",
+            description: `Selamat datang, ${userData.fullName}`,
+          });
+        } else {
+          throw new Error('Username atau password salah');
+        }
       } else {
-        throw new Error(response.message || 'Login gagal');
+        // Real backend login
+        const response = await authAPI.login({ username, password });
+        
+        if (response.success) {
+          const { user: userData, token } = response.data;
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+          
+          toast({
+            title: "Login berhasil",
+            description: `Selamat datang, ${userData.fullName}`,
+          });
+        } else {
+          throw new Error(response.message || 'Login gagal');
+        }
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -95,15 +129,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: any) => {
     try {
       setLoading(true);
-      const response = await authAPI.register(userData);
       
-      if (response.success) {
+      if (DEMO_MODE) {
+        // Demo mode registration (simplified)
         toast({
-          title: "Registrasi berhasil",
-          description: "Akun berhasil dibuat, silakan login",
+          title: "Registrasi berhasil (Mode Demo)",
+          description: "Dalam mode demo, gunakan akun yang sudah tersedia",
         });
       } else {
-        throw new Error(response.message || 'Registrasi gagal');
+        // Real backend registration
+        const response = await authAPI.register(userData);
+        
+        if (response.success) {
+          toast({
+            title: "Registrasi berhasil",
+            description: "Akun berhasil dibuat, silakan login",
+          });
+        } else {
+          throw new Error(response.message || 'Registrasi gagal');
+        }
       }
     } catch (error: any) {
       console.error('Register error:', error);
@@ -124,7 +168,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     toast({
       title: "Logout berhasil",
-      description: "Anda telah keluar dari sistem",
+      description: DEMO_MODE ? "Anda telah keluar dari mode demo" : "Anda telah keluar dari sistem",
     });
   };
 
