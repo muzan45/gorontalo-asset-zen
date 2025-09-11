@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from '@tanstack/react-query';
-import { Package, MapPin, AlertTriangle, CheckCircle, Clock, Plus, QrCode } from "lucide-react";
+import { Package, MapPin, AlertTriangle, CheckCircle, Clock, Plus } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -28,7 +28,7 @@ const Settings = () => {
     emailNotifications: true,
     systemAlerts: true,
     maintenanceReminders: true,
-    qrCodeGeneration: true,
+    
   });
 
   const [users, setUsers] = useState([
@@ -232,22 +232,6 @@ const Settings = () => {
                   />
                 </div>
                 
-                <Separator />
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Generate QR Code Otomatis</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Buat QR Code saat menambah item baru
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.qrCodeGeneration}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, qrCodeGeneration: checked }))
-                    }
-                  />
-                </div>
               </div>
               
               <Button onClick={handleSaveSettings} className="btn-primary">

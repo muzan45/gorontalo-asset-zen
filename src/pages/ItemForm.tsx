@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, QrCode, Save, X } from "lucide-react";
+import { ArrowLeft, Upload, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ItemForm = () => {
@@ -71,12 +71,6 @@ const ItemForm = () => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const generateQRCode = () => {
-    toast({
-      title: "QR Code Generated",
-      description: "QR Code telah dibuat dan siap untuk dicetak",
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -316,26 +310,6 @@ const ItemForm = () => {
             </CardContent>
           </Card>
 
-          {/* QR Code */}
-          <Card className="card-dashboard">
-            <CardHeader>
-              <CardTitle>QR Code</CardTitle>
-              <CardDescription>
-                Generate QR Code untuk item ini
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full"
-                onClick={generateQRCode}
-              >
-                <QrCode className="h-4 w-4 mr-2" />
-                Generate QR Code
-              </Button>
-            </CardContent>
-          </Card>
 
           {/* Action Buttons */}
           <div className="space-y-3">
