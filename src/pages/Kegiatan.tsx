@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Kegiatan = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -161,7 +163,10 @@ const Kegiatan = () => {
             Kelola kegiatan, ujian, pelatihan, dan workshop beserta inventaris yang digunakan
           </p>
         </div>
-        <Button className="btn-primary">
+        <Button 
+          className="btn-primary"
+          onClick={() => navigate('/kegiatan/add')}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Tambah Kegiatan
         </Button>
@@ -315,7 +320,10 @@ const Kegiatan = () => {
                 ? "Coba ubah filter pencarian atau buat kegiatan baru" 
                 : "Belum ada kegiatan yang terdaftar. Mulai dengan menambahkan kegiatan baru."}
             </p>
-            <Button className="btn-primary">
+            <Button 
+              className="btn-primary"
+              onClick={() => navigate('/kegiatan/add')}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Tambah Kegiatan Pertama
             </Button>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from '@tanstack/react-query';
-import { Package, MapPin, AlertTriangle, CheckCircle, Clock, Plus } from "lucide-react";
+import { Package, MapPin, AlertTriangle, CheckCircle, Clock, Plus, Calendar } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -183,14 +183,44 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/inventory/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Item
-            </Button>
+            <div className="grid grid-cols-1 gap-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/inventory/add')}
+                className="justify-start"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Tambah Item
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/kegiatan/add')}
+                className="justify-start"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                Jadwal Kegiatan
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/locations/add')}
+                className="justify-start"
+              >
+                <MapPin className="mr-2 h-4 w-4" />
+                Tambah Lokasi
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/reports')}
+                className="justify-start"
+              >
+                <Package className="mr-2 h-4 w-4" />
+                Buat Laporan
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

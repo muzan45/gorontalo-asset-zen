@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import ItemForm from "./pages/ItemForm";
 import Kegiatan from "./pages/Kegiatan";
+import EventFormPage from "./pages/EventFormPage";
 import Locations from "./pages/Locations";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -65,6 +66,7 @@ function App() {
                         <Route path="/inventory/add" element={<ItemForm />} />
                         <Route path="/inventory/edit/:id" element={<ItemForm />} />
                         <Route path="/kegiatan" element={<Kegiatan />} />
+                        <Route path="/kegiatan/add" element={<EventFormPage />} />
                         <Route path="/locations" element={<Locations />} />
                         <Route path="/reports" element={<Reports />} />
                         <Route 

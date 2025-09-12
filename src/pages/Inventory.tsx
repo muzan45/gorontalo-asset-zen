@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter, Download, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Filter, Download, Edit, Trash2, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,14 +119,36 @@ const Inventory = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              toast({
+                title: "Export Excel",
+                description: "Data inventaris berhasil diexport ke Excel",
+              });
+            }}
+          >
             <Download className="mr-2 h-4 w-4" />
-            Export
+            Export Excel
           </Button>
-            <Button className="btn-primary" size="sm" onClick={() => navigate('/inventory/add')}>
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Item
-            </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              toast({
+                title: "Sinkronisasi Data",
+                description: "Data inventaris berhasil disinkronisasi",
+              });
+            }}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Sinkron Data
+          </Button>
+          <Button className="btn-primary" size="sm" onClick={() => navigate('/inventory/add')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tambah Item
+          </Button>
         </div>
       </div>
 

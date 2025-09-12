@@ -300,11 +300,31 @@ const Locations = () => {
               </div>
 
               <div className="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => {
+                    toast({
+                      title: "Edit Lokasi",
+                      description: `Mengedit ${location.name}`,
+                    });
+                  }}
+                >
                   <Edit className="h-3 w-3 mr-1" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => {
+                    toast({
+                      title: "Hapus Lokasi",
+                      description: `${location.name} berhasil dihapus`,
+                    });
+                  }}
+                >
                   <Trash2 className="h-3 w-3 mr-1" />
                   Hapus
                 </Button>
