@@ -1,11 +1,28 @@
 import axios from 'axios';
 import { DEMO_MODE, demoUsers, demoInventory, demoLocations, demoEvents, demoStats } from './demo-data';
 
-const API_BASE_URL =
-  (typeof window !== 'undefined' && (window as any).__API_BASE_URL__) ||
-  ((location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : '/api');
+const API_BASE_URL = (() => {
+  // Check for environment variable first
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Production/local network detection
+  const hostname = window.location.hostname;
+  
+  // Local development
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:5000/api';
+  }
+  
+  // Production on same server
+  if (window.location.port === '3000') {
+    return `http://${hostname}:5000/api`;
+  }
+  
+  // Default production (same domain)
+  return '/api';
+})();
 
 // Create axios instance
 const api = axios.create({
