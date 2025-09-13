@@ -1,23 +1,31 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authAPI } from '@/lib/api';
-import { toast } from '@/components/ui/use-toast';
-import { DEMO_MODE, findDemoUser, getDemoUserById } from '@/lib/demo-data';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { User, Session } from '@supabase/supabase-js';
 
-interface User {
+interface Profile {
   id: string;
-  fullName: string;
-  username: string;
-  email: string;
+  full_name: string | null;
+  username: string | null;
   role: string;
-  phone?: string;
+  phone: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AuthUser extends User {
+  profile?: Profile;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
+  session: Session | null;
+  profile: Profile | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
-  register: (userData: any) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (email: string, password: string, fullName: string, username: string, role?: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -36,88 +44,89 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch user profile from profiles table
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    const initializeAuth = async () => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-
-      if (token && storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-          
-          // In demo mode, skip server verification
-          if (!DEMO_MODE) {
-            await authAPI.getMe();
-          }
-        } catch (error) {
-          console.error('Token verification failed:', error);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch profile data
+          setTimeout(async () => {
+            const profileData = await fetchProfile(session.user.id);
+            setProfile(profileData);
+          }, 0);
+        } else {
+          setProfile(null);
         }
+        
+        setLoading(false);
       }
-      setLoading(false);
-    };
+    );
 
-    initializeAuth();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfile(session.user.id).then(profileData => {
+          setProfile(profileData);
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
       setLoading(true);
       
-      if (DEMO_MODE) {
-        // Demo mode login
-        const demoUser = findDemoUser(username, password);
-        
-        if (demoUser) {
-          const userData = {
-            id: demoUser.id,
-            fullName: demoUser.fullName,
-            username: demoUser.username,
-            email: demoUser.email,
-            role: demoUser.role,
-            phone: demoUser.phone
-          };
-          
-          const demoToken = `demo-token-${demoUser.id}`;
-          localStorage.setItem('token', demoToken);
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-          
-          toast({
-            title: "Login berhasil (Mode Demo)",
-            description: `Selamat datang, ${userData.fullName}`,
-          });
-        } else {
-          throw new Error('Username atau password salah');
-        }
-      } else {
-        // Real backend login
-        const response = await authAPI.login({ username, password });
-        
-        if (response.success) {
-          const { user: userData, token } = response.data;
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-          
-          toast({
-            title: "Login berhasil",
-            description: `Selamat datang, ${userData.fullName}`,
-          });
-        } else {
-          throw new Error(response.message || 'Login gagal');
-        }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
       }
+
+      toast({
+        title: "Login berhasil",
+        description: "Selamat datang kembali!",
+      });
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
-        title: "Login gagal",
-        description: error.response?.data?.message || error.message || 'Terjadi kesalahan saat login',
+        title: "Login gagal", 
+        description: error.message || 'Terjadi kesalahan saat login',
         variant: "destructive",
       });
       throw error;
@@ -126,34 +135,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (userData: any) => {
+  const register = async (email: string, password: string, fullName: string, username: string, role: string = 'staff') => {
     try {
       setLoading(true);
       
-      if (DEMO_MODE) {
-        // Demo mode registration (simplified)
-        toast({
-          title: "Registrasi berhasil (Mode Demo)",
-          description: "Dalam mode demo, gunakan akun yang sudah tersedia",
-        });
-      } else {
-        // Real backend registration
-        const response = await authAPI.register(userData);
-        
-        if (response.success) {
-          toast({
-            title: "Registrasi berhasil",
-            description: "Akun berhasil dibuat, silakan login",
-          });
-        } else {
-          throw new Error(response.message || 'Registrasi gagal');
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            username: username,
+            role: role
+          }
         }
+      });
+
+      if (error) {
+        throw error;
       }
+
+      toast({
+        title: "Registrasi berhasil",
+        description: "Silakan cek email Anda untuk verifikasi akun",
+      });
     } catch (error: any) {
       console.error('Register error:', error);
       toast({
         title: "Registrasi gagal",
-        description: error.response?.data?.message || error.message || 'Terjadi kesalahan saat registrasi',
+        description: error.message || 'Terjadi kesalahan saat registrasi',
         variant: "destructive",
       });
       throw error;
@@ -162,23 +175,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-    toast({
-      title: "Logout berhasil",
-      description: DEMO_MODE ? "Anda telah keluar dari mode demo" : "Anda telah keluar dari sistem",
-    });
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logout berhasil",
+        description: "Anda telah keluar dari sistem",
+      });
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Logout gagal",
+        description: error.message || 'Terjadi kesalahan saat logout',
+        variant: "destructive",
+      });
+    }
   };
 
   const value = {
     user,
+    session,
+    profile,
     loading,
     login,
     logout,
     register,
-    isAuthenticated: !!user,
+    isAuthenticated: !!session,
   };
 
   return (

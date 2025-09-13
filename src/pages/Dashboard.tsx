@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/dashboard-hero.jpg";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   // Fetch dashboard stats
@@ -26,7 +26,7 @@ const Dashboard = () => {
       id: 1,
       action: "Menambahkan item baru",
       item: "Komputer Desktop Dell OptiPlex 7090",
-      user: user?.fullName || "Admin BKN",
+      user: profile?.full_name || user?.email || "Admin BKN",
       time: "2 jam yang lalu",
       type: "add" as const,
     },
@@ -42,7 +42,7 @@ const Dashboard = () => {
       id: 3,
       action: "Memindahkan lokasi",
       item: "Meja Kerja Kayu - MK001",
-      user: user?.fullName || "Admin BKN",
+      user: profile?.full_name || user?.email || "Admin BKN",
       time: "6 jam yang lalu",
       type: "move" as const,
     },

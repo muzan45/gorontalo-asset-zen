@@ -22,7 +22,7 @@ import {
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const collapsed = state === "collapsed";
 
   const navigation = [
@@ -120,8 +120,8 @@ export function AppSidebar() {
                       <User className="size-4" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{user?.fullName}</span>
-                      <span className="truncate text-xs capitalize">{user?.role}</span>
+                      <span className="truncate font-semibold">{profile?.full_name || user?.email}</span>
+                      <span className="truncate text-xs capitalize">{profile?.role || 'user'}</span>
                     </div>
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
